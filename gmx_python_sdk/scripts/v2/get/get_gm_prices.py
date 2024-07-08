@@ -156,6 +156,10 @@ class GMPrices(GetData):
                 "{}_gm_prices.csv".format(self.config.chain),
                 dataframe)
 
+        self.output['parameter'] = "gm_prices"
+        del self.output["long"]
+        del self.output["short"]
+
         return self.output
 
     def _make_market_token_price_query(

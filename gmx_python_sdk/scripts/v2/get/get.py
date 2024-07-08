@@ -38,17 +38,35 @@ class GetData:
         data = self._get_data_processing()
 
         if to_json:
+            parameter = data['parameter']
             save_json_file_to_datastore(
-                "{}_data.json".format(self.config.chain),
+                "{}_{}_data.json".format(self.config.chain, parameter),
                 data
             )
 
         if to_csv:
-            data = make_timestamped_dataframe(data)
-            save_csv_to_datastore(
-                "{}_data.csv".format(self.config.chain),
-                data
-            )
+            try:
+                parameter = data['parameter']
+                dataframe = make_timestamped_dataframe(data['long'])
+                save_csv_to_datastore(
+                    "{}_long_{}_data.csv".format(self.config.chain, parameter),
+                    dataframe
+                )
+                dataframe = make_timestamped_dataframe(data['short'])
+                save_csv_to_datastore(
+                    "{}_short_{}_data.csv".format(self.config.chain, parameter),
+                    dataframe
+                )
+            except KeyError as e:
+
+                dataframe = make_timestamped_dataframe(data)
+                save_csv_to_datastore(
+                    "{}_{}_data.csv".format(self.config.chain, parameter),
+                    dataframe
+                )
+
+            except Exception as e:
+                logging.info(e)
 
         return data
 

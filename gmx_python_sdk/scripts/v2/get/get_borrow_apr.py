@@ -52,6 +52,9 @@ class GetBorrowAPR(GetData):
                     self.output["short"][key]
                 )
             )
+
+        self.output['parameter'] = "borrow_apr"
+
         return self.output
 
 

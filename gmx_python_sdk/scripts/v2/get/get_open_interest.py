@@ -134,6 +134,7 @@ class OpenInterest(GetData):
 
             self.output['long'][market_symbol] = long_value
             self.output['short'][market_symbol] = short_value
+        self.output['parameter'] = "open_interest"
 
         return self.output
 

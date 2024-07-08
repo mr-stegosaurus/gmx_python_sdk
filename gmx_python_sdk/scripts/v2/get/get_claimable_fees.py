@@ -101,6 +101,9 @@ class GetClaimableFees(GetData):
             # 6 decimals
             short_claimable_usd = short_claimable_fees / (10 ** 6)
 
+            if "2" in token_symbol:
+                short_claimable_usd = 0
+
             self.log.info(f"Token: {token_symbol}")
 
             self.log.info(
@@ -115,7 +118,8 @@ class GetClaimableFees(GetData):
 
             total_fees += long_claimable_usd + short_claimable_usd
 
-        return {'latest_total_fees': total_fees}
+        return {'total_fees': total_fees,
+                "parameter": "total_fees"}
 
     def _get_claimable_fee_amount(
         self, market_address: str, token_address: str

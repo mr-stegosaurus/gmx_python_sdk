@@ -124,6 +124,8 @@ class GetFundingFee(GetData):
             self.output['long'][symbol] = long_funding_fee
             self.output['short'][symbol] = short_funding_fee
 
+        self.output['parameter'] = "funding_apr"
+
         return self.output
 
 

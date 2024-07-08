@@ -235,6 +235,8 @@ class GetAvailableLiquidity(GetData):
             self.output['long'][token_symbol] = long_liquidity
             self.output['short'][token_symbol] = short_liquidity
 
+        self.output['parameter'] = 'available_liquidity'
+
         return self.output
 
     def get_max_reserved_usd(self, market: str, token: str, is_long: bool) -> (
