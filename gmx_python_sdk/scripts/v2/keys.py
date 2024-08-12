@@ -8,13 +8,20 @@ DEPOSIT_GAS_LIMIT = create_hash_string("DEPOSIT_GAS_LIMIT")
 WITHDRAWAL_GAS_LIMIT = create_hash_string("WITHDRAWAL_GAS_LIMIT")
 
 EXECUTION_GAS_FEE_BASE_AMOUNT = create_hash_string("EXECUTION_GAS_FEE_BASE_AMOUNT")
-EXECUTION_GAS_FEE_MULTIPLIER_FACTOR = create_hash_string("EXECUTION_GAS_FEE_MULTIPLIER_FACTOR")
+EXECUTION_GAS_FEE_MULTIPLIER_FACTOR = create_hash_string(
+    "EXECUTION_GAS_FEE_MULTIPLIER_FACTOR")
 INCREASE_ORDER_GAS_LIMIT = create_hash_string("INCREASE_ORDER_GAS_LIMIT")
 MAX_OPEN_INTEREST = create_hash_string("MAX_OPEN_INTEREST")
+MAX_POSITION_IMPACT_FACTOR_FOR_LIQUIDATIONS_KEY = create_hash_string(
+    "MAX_POSITION_IMPACT_FACTOR_FOR_LIQUIDATIONS"
+)
 MAX_PNL_FACTOR_FOR_TRADERS = create_hash_string("MAX_PNL_FACTOR_FOR_TRADERS")
 MAX_PNL_FACTOR_FOR_DEPOSITS = create_hash_string("MAX_PNL_FACTOR_FOR_DEPOSITS")
 MAX_PNL_FACTOR_FOR_WITHDRAWALS = create_hash_string("MAX_PNL_FACTOR_FOR_WITHDRAWALS")
 MIN_ADDITIONAL_GAS_FOR_EXECUTION = create_hash_string("MIN_ADDITIONAL_GAS_FOR_EXECUTION")
+MIN_COLLATERAL_USD = create_hash_string("MIN_COLLATERAL_USD")
+MIN_COLLATERAL_FACTOR_KEY = create_hash_string("MIN_COLLATERAL_FACTOR")
+MIN_POSITION_SIZE_USD = create_hash_string("MIN_POSITION_SIZE_USD")
 OPEN_INTEREST_IN_TOKENS = create_hash_string("OPEN_INTEREST_IN_TOKENS")
 OPEN_INTEREST = create_hash_string("OPEN_INTEREST")
 OPEN_INTEREST_RESERVE_FACTOR = create_hash_string(
@@ -65,6 +72,14 @@ def min_additional_gas_for_execution_key():
     return MIN_ADDITIONAL_GAS_FOR_EXECUTION
 
 
+def min_collateral():
+    return MIN_COLLATERAL_USD
+
+
+def min_collateral_factor_key(market):
+    return create_hash(["bytes32", "address"], [MIN_COLLATERAL_FACTOR_KEY, market])
+
+
 def max_open_interest_key(market: str,
                           is_long: bool):
 
@@ -72,6 +87,11 @@ def max_open_interest_key(market: str,
         ["bytes32", "address", "bool"],
         [MAX_OPEN_INTEREST, market, is_long]
     )
+
+
+def max_position_impact_factor_for_liquidations_key(market):
+    return create_hash(["bytes32", "address"],
+                       [MAX_POSITION_IMPACT_FACTOR_FOR_LIQUIDATIONS_KEY, market])
 
 
 def open_interest_in_tokens_key(
