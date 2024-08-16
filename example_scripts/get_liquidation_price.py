@@ -22,6 +22,10 @@ from gmx_python_sdk.scripts.v2.get.get import GetData
 
 from decimal import Decimal
 
+# TODO - KNOWN ISSUES
+# - Single Side Pools not working
+# - markets beyond WIF not supported
+
 
 def calculate_liquidation_price(
     datastore_obj,
@@ -103,8 +107,8 @@ def calculate_liquidation_price(
                 return None
 
             liquidation_price = (
-                (size_in_usd + liquidation_collateral_usd
-                 - price_impact_delta_usd + total_fees_usd) / denominator
+                (size_in_usd + liquidation_collateral_usd -
+                 price_impact_delta_usd + total_fees_usd) / denominator
             )
             # TODO - add back in ) * 10**22
         else:
@@ -114,8 +118,8 @@ def calculate_liquidation_price(
                 return None
 
             liquidation_price = (
-                (size_in_usd - liquidation_collateral_usd
-                 + price_impact_delta_usd - total_fees_usd) / denominator
+                (size_in_usd - liquidation_collateral_usd +
+                 price_impact_delta_usd - total_fees_usd) / denominator
             )
             # TODO - add back in ) * 10**22
     else:
@@ -127,20 +131,20 @@ def calculate_liquidation_price(
         print(f"Closing Fee: {closing_fee_usd}")
         print(f"Collat USD: {collateral_usd}")
 
-        remaining_collateral_usd = (collateral_usd + price_impact_delta_usd
-                                    - total_pending_fees_usd - closing_fee_usd)
+        remaining_collateral_usd = (collateral_usd + price_impact_delta_usd -
+                                    total_pending_fees_usd - closing_fee_usd)
 
         print(f"Remaining Colat: {remaining_collateral_usd}")
         if is_long:
             liquidation_price = (
-                (liquidation_collateral_usd
-                 - remaining_collateral_usd + size_in_usd) / size_in_tokens
+                (liquidation_collateral_usd -
+                 remaining_collateral_usd + size_in_usd) / size_in_tokens
             )
             # TODO - add back in ) * 10**22
         else:
             liquidation_price = (
-                (liquidation_collateral_usd - remaining_collateral_usd
-                 - size_in_usd) / - size_in_tokens
+                (liquidation_collateral_usd - remaining_collateral_usd -
+                 size_in_usd) / - size_in_tokens
             )
             # TODO - add back in ) * 10**22
 
@@ -282,6 +286,7 @@ def transform_to_dict(account_positions_list):
 
 
 def find_position(market_address, account_position):
+    print(market_address, account_position['position']['addresses']['market'])
     if market_address == account_position['position']['addresses']['market']:
         return True
     else:
@@ -311,17 +316,17 @@ def get_liquidation_price(config, position_dict, wallet_address=None):
     datastore_obj = get_datastore_contract(config)
     position_keys = datastore_obj.functions.getBytes32ValuesAt(hex_data, 0, 1000).call()
 
-    account_positions_list = []
+    account_positions_list_filter = []
     for i in position_keys:
-
+        print(i)
         # get account positions using positions key built with info above
         account_positions_list_raw = reader_obj.functions.getAccountPositionInfoList(
             datastore, referral_storage, [i], output, wallet_address).call()
         account_positions_list = transform_to_dict(account_positions_list_raw)
 
-        account_positions_list += account_positions_list
+        account_positions_list_filter += account_positions_list
 
-    for account_position in account_positions_list:
+    for account_position in account_positions_list_filter:
         if find_position(market_address, account_position):
             break
 
@@ -354,10 +359,10 @@ def get_liquidation_price(config, position_dict, wallet_address=None):
 
 if __name__ == "__main__":
 
-    wallet_address = "0xe605C1AA7bF0F08a3138dBe65DD6aF9cE315Ac76"
+    wallet_address = "0xaB4A1001154220e942813763dF8D5ce0d8ea42d9"
     config = ConfigManager(chain='arbitrum')
     config.set_config()
     positions = get_positions(config, address=wallet_address)
 
     liquidation_price = get_liquidation_price(
-        config, positions['AAVE_long'], wallet_address)
+        config, positions['GMX_long'], wallet_address)
