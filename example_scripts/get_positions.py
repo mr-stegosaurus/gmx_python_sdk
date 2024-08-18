@@ -161,23 +161,23 @@ if __name__ == "__main__":
 
     positions = get_positions(
         config=config,
-        address=None
+        address="0x0e9E19E7489E5F13a0940b3b6FcB84B25dc68177"
     )
 
-    market_symbol = "ETH"
-    is_long = True
+    # market_symbol = "ETH"
+    # is_long = True
 
-    out_token = "USDC"
-    amount_of_position_to_close = 1
-    amount_of_collateral_to_remove = 1
+    # out_token = "USDC"
+    # amount_of_position_to_close = 1
+    # amount_of_collateral_to_remove = 1
 
-    order_params = transform_open_position_to_order_parameters(
-        config=config,
-        positions=positions,
-        market_symbol=market_symbol,
-        is_long=is_long,
-        slippage_percent=0.003,
-        out_token="USDC",
-        amount_of_position_to_close=amount_of_position_to_close,
-        amount_of_collateral_to_remove=amount_of_collateral_to_remove
-    )
+    # order_params = transform_open_position_to_order_parameters(
+    #     config=config,
+    #     positions=positions,
+    #     market_symbol=market_symbol,
+    #     is_long=is_long,
+    #     slippage_percent=0.003,
+    #     out_token="USDC",
+    #     amount_of_position_to_close=amount_of_position_to_close,
+    #     amount_of_collateral_to_remove=amount_of_collateral_to_remove
+    # )

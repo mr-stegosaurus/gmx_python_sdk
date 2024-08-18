@@ -41,26 +41,29 @@ class GetOpenPositions(GetData):
         if len(raw_positions) == 0:
             logging.info(
                 'No positions open for address: "{}"" on {}.'.format(
-                    address,
+                    self.address,
                     self.config.chain.title()
                 )
             )
         processed_positions = {}
 
         for raw_position in raw_positions:
-            processed_position = self._get_data_processing(raw_position)
+            try:
+                processed_position = self._get_data_processing(raw_position)
 
-            # TODO - maybe a better way of building the key?
-            if processed_position['is_long']:
-                direction = 'long'
-            else:
-                direction = 'short'
+                # TODO - maybe a better way of building the key?
+                if processed_position['is_long']:
+                    direction = 'long'
+                else:
+                    direction = 'short'
 
-            key = "{}_{}".format(
-                processed_position['market_symbol'][0],
-                direction
-            )
-            processed_positions[key] = processed_position
+                key = "{}_{}".format(
+                    processed_position['market_symbol'][0],
+                    direction
+                )
+                processed_positions[key] = processed_position
+            except KeyError as e:
+                logging.error(f"Incompatible market: {e}")
 
         return processed_positions
 

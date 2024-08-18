@@ -38,17 +38,35 @@ class GetData:
         data = self._get_data_processing()
 
         if to_json:
+            parameter = data['parameter']
             save_json_file_to_datastore(
-                "{}_data.json".format(self.config.chain),
+                "{}_{}_data.json".format(self.config.chain, parameter),
                 data
             )
 
         if to_csv:
-            data = make_timestamped_dataframe(data)
-            save_csv_to_datastore(
-                "{}_data.csv".format(self.config.chain),
-                data
-            )
+            try:
+                parameter = data['parameter']
+                dataframe = make_timestamped_dataframe(data['long'])
+                save_csv_to_datastore(
+                    "{}_long_{}_data.csv".format(self.config.chain, parameter),
+                    dataframe
+                )
+                dataframe = make_timestamped_dataframe(data['short'])
+                save_csv_to_datastore(
+                    "{}_short_{}_data.csv".format(self.config.chain, parameter),
+                    dataframe
+                )
+            except KeyError as e:
+
+                dataframe = make_timestamped_dataframe(data)
+                save_csv_to_datastore(
+                    "{}_{}_data.csv".format(self.config.chain, parameter),
+                    dataframe
+                )
+
+            except Exception as e:
+                logging.info(e)
 
         return data
 
@@ -107,7 +125,7 @@ class GetData:
         self,
         market_key: str,
         index_token_address: str,
-        return_tuple: bool = False,
+        return_tuple: bool = False
     ):
         """
         For a given market get the marketInfo from the reader contract
@@ -215,3 +233,44 @@ class GetData:
             prices,
             market_key
         )
+
+    @staticmethod
+    def _format_market_info_output(output):
+        output = {
+            "market_address": output[0][0],
+            "index_address": output[0][1],
+            "long_address": output[0][2],
+            "short_address": output[0][3],
+
+            "borrowingFactorPerSecondForLongs": output[1],
+            "borrowingFactorPerSecondForShorts": output[2],
+
+            "baseFunding_long_fundingFeeAmountPerSize_longToken": output[3][0][0][0],
+            "baseFundinglong_fundingFeeAmountPerSize_shortToken": output[3][0][0][1],
+            "baseFundingshort_fundingFeeAmountPerSize_longToken": output[3][0][1][0],
+            "baseFundingshort_fundingFeeAmountPerSize_shortToken": output[3][0][1][1],
+            "baseFundinglong_claimableFundingAmountPerSize_longToken": output[3][1][0][0],
+            "baseFundinglong_claimableFundingAmountPerSize_shortToken": output[3][1][0][1],
+            "baseFundingshort_claimableFundingAmountPerSize_longToken": output[3][1][1][0],
+            "baseFundingshort_claimableFundingAmountPerSize_shortToken": output[3][1][1][1],
+
+            "longsPayShorts": output[4][0],
+            "fundingFactorPerSecond": output[4][1],
+            "nextSavedFundingFactorPerSecond": output[4][2],
+
+            "nextFunding_long_fundingFeeAmountPerSize_longToken": output[4][3][0][0],
+            "nextFunding_long_fundingFeeAmountPerSize_shortToken": output[4][3][0][1],
+            "nextFunding_baseFundingshort_fundingFeeAmountPerSize_longToken": output[4][3][1][0],
+            "nextFunding_baseFundingshort_fundingFeeAmountPerSize_shortToken": output[4][3][1][1],
+            "nextFunding_baseFundinglong_claimableFundingAmountPerSize_longToken": output[4][4][0][0],
+            "nextFunding_baseFundinglong_claimableFundingAmountPerSize_shortToken": output[4][4][0][1],
+            "nextFunding_baseFundingshort_claimableFundingAmountPerSize_longToken": output[4][4][1][0],
+            "nextFunding_baseFundingshort_claimableFundingAmountPerSize_shortToken": output[4][4][1][1],
+
+            "virtualPoolAmountForLongToken": output[5][0],
+            "virtualPoolAmountForShortToken": output[5][1],
+            "virtualInventoryForPositions": output[5][2],
+
+            "isDisabled": output[6],
+        }
+        return output

@@ -116,7 +116,7 @@ if __name__ == "__main__":
     to_json = True
     to_csv = True
 
-    config = ConfigManager(chain='avalanche')
+    config = ConfigManager(chain='arbitrum')
     config.set_config()
 
     stats_object = GetGMXv2Stats(
