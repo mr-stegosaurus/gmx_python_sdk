@@ -65,7 +65,7 @@ class Markets:
         return reader_contract.functions.getMarkets(
             data_store_contract_address,
             0,
-            23
+            35
         ).call()
 
     def _process_markets(self):
@@ -103,6 +103,10 @@ class Markets:
                     'short_token_metadata': token_address_dict[raw_market[3]],
                     'short_token_address': raw_market[3]
                 }
+                if raw_market[0] == "0x0Cf1fb4d1FF67A3D8Ca92c9d6643F8F9be8e03E5":
+                    decoded_markets[raw_market[0]]["market_symbol"] = "wstETH"
+                    decoded_markets[raw_market[0]
+                                    ]["index_token_address"] = "0x5979D7b546E38E414F7E9822514be443A4800529"
 
             # If KeyError it is because there is no market symbol and it is a
             # swap market
