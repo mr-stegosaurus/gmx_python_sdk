@@ -16,6 +16,7 @@ from gmx_python_sdk.scripts.v2.get.get_markets import Markets
 from gmx_python_sdk.scripts.v2.get.get_open_interest import OpenInterest
 from gmx_python_sdk.scripts.v2.get.get_oracle_prices import OraclePrices
 from gmx_python_sdk.scripts.v2.get.get_pool_tvl import GetPoolTVL
+from gmx_python_sdk.scripts.v2.get.get_glv_stats import GlvStats
 
 from gmx_python_sdk.scripts.v2.gmx_utils import ConfigManager
 
@@ -110,6 +111,12 @@ class GetGMXv2Stats:
             to_json=self.to_json
         )
 
+    def get_glv_stats(self):
+
+        return GlvStats(
+            self.config
+        ).get_glv_stats()
+
 
 if __name__ == "__main__":
 
@@ -135,3 +142,4 @@ if __name__ == "__main__":
     open_interest = stats_object.get_open_interest()
     oracle_prices = stats_object.get_oracle_prices()
     pool_tvl = stats_object.get_pool_tvl()
+    glv_price = stats_object.get_glv_stats()
