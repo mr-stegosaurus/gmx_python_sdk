@@ -81,6 +81,11 @@ contract_map = {
         {
             "contract_address": "0x7452c558d45f8afC8c83dAe62C3f8A5BE19c71f6",
             "abi_path": "contracts/arbitrum/syntheticsrouter.json"
+        },
+        "glvreader":
+        {
+            "contract_address": "0xd4f522c4339Ae0A90a156bd716715547e44Bed65",
+            "abi_path": "contracts/arbitrum/glvreader.json"
         }
     },
     'avalanche':
@@ -378,6 +383,25 @@ def get_exchange_router_contract(config):
     return get_contract_object(
         web3_obj,
         'exchangerouter',
+        config.chain
+    )
+
+
+def get_glv_reader_contract(config):
+    """
+    Get a glv reader contract web3_obj for a given chain
+
+    Parameters
+    ----------
+    chain : str
+        avalanche or arbitrum.
+
+    """
+
+    web3_obj = create_connection(config)
+    return get_contract_object(
+        web3_obj,
+        'glvreader',
         config.chain
     )
 
