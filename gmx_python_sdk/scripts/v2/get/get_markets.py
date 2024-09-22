@@ -1,3 +1,5 @@
+import logging
+
 from ..gmx_utils import (
     contract_map, get_tokens_address_dict, get_reader_contract
 )
@@ -9,6 +11,7 @@ class Markets:
     def __init__(self, config):
         self.config = config
         self.info = self._process_markets()
+        self.log = logging.getLogger(__name__)
 
     def get_index_token_address(self, market_key: str) -> str:
         return self.info[market_key]['index_token_address']
@@ -45,6 +48,7 @@ class Markets:
             dictionary of the available markets.
 
         """
+        logging.info("Getting Available Markets..")
         return self._process_markets()
 
     def _get_available_markets_raw(self):
@@ -57,6 +61,7 @@ class Markets:
             tuple of raw output from the reader contract.
 
         """
+
         reader_contract = get_reader_contract(self.config)
         data_store_contract_address = (
             contract_map[self.config.chain]['datastore']['contract_address']
@@ -90,7 +95,7 @@ class Markets:
                 ):
                     continue
                 market_symbol = token_address_dict[raw_market[1]]['symbol']
-                print(raw_market)
+
                 if raw_market[2] == raw_market[3]:
                     market_symbol = f"{market_symbol}2"
                 decoded_markets[raw_market[0]] = {
@@ -151,6 +156,4 @@ class Markets:
 
 
 if __name__ == '__main__':
-    raw_markets = Markets(
-        chain="arbitrum"
-    ).get_available_markets()
+    pass
