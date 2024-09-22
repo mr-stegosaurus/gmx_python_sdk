@@ -118,7 +118,7 @@ def transform_open_position_to_order_parameters(
             "symbol",
             out_token
         )['address']
-        markets = Markets(config=config).get_available_markets()
+        markets = Markets(config=config).info
 
         swap_path = []
 
