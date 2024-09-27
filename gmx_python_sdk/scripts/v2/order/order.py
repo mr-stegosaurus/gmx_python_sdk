@@ -198,9 +198,9 @@ class Order:
         else:
 
             # 20% buffer
-            execution_fee = int(execution_fee * 1.2)
+            execution_fee = int(execution_fee * 1.3)
 
-        markets = Markets(self.config).get_available_markets()
+        markets = Markets(self.config).info
         initial_collateral_delta_amount = self.initial_collateral_delta_amount
         prices = OraclePrices(chain=self.config.chain).get_recent_prices()
         size_delta_price_price_impact = self.size_delta

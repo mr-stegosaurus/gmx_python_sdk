@@ -81,6 +81,11 @@ contract_map = {
         {
             "contract_address": "0x7452c558d45f8afC8c83dAe62C3f8A5BE19c71f6",
             "abi_path": "contracts/arbitrum/syntheticsrouter.json"
+        },
+        "glvreader":
+        {
+            "contract_address": "0xd4f522c4339Ae0A90a156bd716715547e44Bed65",
+            "abi_path": "contracts/arbitrum/glvreader.json"
         }
     },
     'avalanche':
@@ -378,6 +383,25 @@ def get_exchange_router_contract(config):
     return get_contract_object(
         web3_obj,
         'exchangerouter',
+        config.chain
+    )
+
+
+def get_glv_reader_contract(config):
+    """
+    Get a glv reader contract web3_obj for a given chain
+
+    Parameters
+    ----------
+    chain : str
+        avalanche or arbitrum.
+
+    """
+
+    web3_obj = create_connection(config)
+    return get_contract_object(
+        web3_obj,
+        'glvreader',
         config.chain
     )
 
@@ -752,6 +776,13 @@ def determine_swap_route(markets: dict, in_token: str, out_token: str):
         requires more than one market to pass thru.
 
     """
+
+    if in_token == "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f":
+        in_token = "0x47904963fc8b2340414262125aF798B9655E58Cd"
+
+    if out_token == "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f":
+        out_token = "0x47904963fc8b2340414262125aF798B9655E58Cd"
+
     if in_token == "0xaf88d065e77c8cC2239327C5EDb3A432268e5831":
         gmx_market_address = find_dictionary_by_key_value(
             markets,
@@ -759,8 +790,6 @@ def determine_swap_route(markets: dict, in_token: str, out_token: str):
             out_token
         )['gmx_market_address']
     else:
-        if in_token == "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f":
-            in_token = "0x47904963fc8b2340414262125aF798B9655E58Cd"
         gmx_market_address = find_dictionary_by_key_value(
             markets,
             "index_token_address",
@@ -772,8 +801,6 @@ def determine_swap_route(markets: dict, in_token: str, out_token: str):
     if out_token != "0xaf88d065e77c8cC2239327C5EDb3A432268e5831" and \
             in_token != "0xaf88d065e77c8cC2239327C5EDb3A432268e5831":
         is_requires_multi_swap = True
-        if out_token == "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f":
-            out_token = "0x47904963fc8b2340414262125aF798B9655E58Cd"
         second_gmx_market_address = find_dictionary_by_key_value(
             markets,
             "index_token_address",

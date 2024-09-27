@@ -14,6 +14,8 @@ class OrderArgumentParser:
         self.is_decrease = is_decrease
         self.is_swap = is_swap
 
+        self.markets = Markets(config).info
+
         if is_increase:
             self.required_keys = [
                 "chain",
@@ -141,7 +143,7 @@ class OrderArgumentParser:
 
         # use the index token address to find the market key from get_available_markets
         self.parameters_dict['market_key'] = self.find_market_key_by_index_address(
-            Markets(self.config).get_available_markets(),
+            self.markets,
             index_token_address
         )
 
@@ -227,9 +229,7 @@ class OrderArgumentParser:
 
         if self.is_swap:
             # first get markets to supply to determine_swap_route
-            markets = Markets(
-                self.config
-            ).get_available_markets()
+            markets = self.markets
 
             # function returns swap route as a list [0] and a bool if there is a multi swap [1]
             self.parameters_dict['swap_path'] = determine_swap_route(
@@ -246,9 +246,7 @@ class OrderArgumentParser:
         else:
 
             # first get markets to supply to determine_swap_route
-            markets = Markets(
-                self.config
-            ).get_available_markets()
+            markets = self.markets
 
             # function returns swap route as a list [0] and a bool if there is a multi swap [1]
             self.parameters_dict['swap_path'] = determine_swap_route(
@@ -289,9 +287,7 @@ class OrderArgumentParser:
         if self.parameters_dict['market_key'] == "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f":
             market_key = "0x47c031236e19d024b42f8AE6780E44A573170703"
 
-        market = Markets(
-            self.config
-        ).get_available_markets()[market_key]
+        market = self.markets
 
         # if collateral address doesnt match long or short token address, no bueno
         if collateral_address == market['long_token_address'] or \
@@ -473,21 +469,41 @@ class OrderArgumentParser:
 
 if __name__ == "__main__":
 
-    chain = 'arbitrum'
-    is_long = True
+    from gmx_python_sdk.scripts.v2.gmx_utils import ConfigManager
 
-    initial_collateral_delta_amount = 1.1
-    slippage_percent = 0.005
+    arbitrum_config_object = ConfigManager(chain='arbitrum')
+    arbitrum_config_object.set_config()
 
     parameters = {
-        "chain": chain,
-        "index_token_symbol": "ARB",
-        "start_token_symbol": "BTC",
-        "collateral_token_symbol": "USDC",
-        "is_long": is_long,
-        "size_delta": 100000,
+        "chain": 'arbitrum',
+
+        # the market you want to trade on
+        "index_token_symbol": "BTC",
+
+        # token to use as collateral. Start token swaps into collateral token
+        # if different
+        "collateral_token_symbol": "BTC",
+
+        # the token to start with - WETH not supported yet
+        "start_token_symbol": "USDC",
+
+        # True for long, False for short
+        "is_long": False,
+
+        # Position size in in USD
+        "size_delta_usd": 5,
+
+        # if leverage is passed, will calculate number of tokens in
+        # start_token_symbol amount
         "leverage": 1,
-        "slippage_percent": slippage_percent
+
+        # as a decimal ie 0.003 == 0.3%
+        "slippage_percent": 0.003
     }
 
-    processed_dict = OrderArgumentParser().process_parameters_dictionary(parameters)
+    order_parameters = OrderArgumentParser(
+        arbitrum_config_object,
+        is_increase=True
+    ).process_parameters_dictionary(
+        parameters
+    )
