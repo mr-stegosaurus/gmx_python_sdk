@@ -59,5 +59,6 @@ order = IncreaseOrder(
     ),
     slippage_percent=order_parameters['slippage_percent'],
     swap_path=order_parameters['swap_path'],
-    debug_mode=True
+    debug_mode=True,
+    execution_buffer=1.5
 )

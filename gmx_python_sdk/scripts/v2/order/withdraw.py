@@ -26,7 +26,9 @@ class Withdraw:
         out_token: str,
         gm_amount: int,
         max_fee_per_gas: int = None,
-        debug_mode: bool = False
+        debug_mode: bool = False,
+        execution_buffer: float = 1.1
+
     ) -> None:
         self.config = config
         self.market_key = market_key
@@ -36,6 +38,11 @@ class Withdraw:
         self.short_token_swap_path = []
         self.max_fee_per_gas = max_fee_per_gas
         self.debug_mode = debug_mode
+        self.execution_buffer = execution_buffer
+
+        if self.debug_mode:
+            logging.info("Execution buffer set to: {:.2f}%".format(
+                (self.execution_buffer - 1) * 100))
 
         if self.max_fee_per_gas is None:
             block = create_connection(
@@ -150,7 +157,7 @@ class Withdraw:
                 self._gas_limits,
                 self._gas_limits_order_type,
                 self._connection.eth.gas_price
-            ) * 1.1
+            ) * self.execution_buffer
         )
 
         callback_gas_limit = 0
