@@ -23,7 +23,7 @@ class Order:
         index_token_address: str, is_long: bool, size_delta: float,
         initial_collateral_delta_amount: str, slippage_percent: float,
         swap_path: list, max_fee_per_gas: int = None, auto_cancel: bool = False,
-        debug_mode: bool = False
+        debug_mode: bool = False, execution_buffer: float = 1.3
     ) -> None:
 
         self.config = config
@@ -38,6 +38,11 @@ class Order:
         self.max_fee_per_gas = max_fee_per_gas
         self.debug_mode = debug_mode
         self.auto_cancel = auto_cancel
+        self.execution_buffer = execution_buffer
+
+        if self.debug_mode:
+            logging.info("Execution buffer set to: {:.2f}%".format(
+                (self.execution_buffer - 1) * 100))
 
         if self.max_fee_per_gas is None:
             block = create_connection(
@@ -190,15 +195,7 @@ class Order:
         if not is_close and not self.debug_mode:
             self.check_for_approval()
 
-        # Up execution fee for swap, more complex
-        if is_swap:
-
-            # 30% buffer
-            execution_fee = int(execution_fee * 1.5)
-        else:
-
-            # 20% buffer
-            execution_fee = int(execution_fee * 1.3)
+        execution_fee = int(execution_fee * self.execution_buffer)
 
         markets = Markets(self.config).info
         initial_collateral_delta_amount = self.initial_collateral_delta_amount
