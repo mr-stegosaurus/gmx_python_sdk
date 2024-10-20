@@ -10,10 +10,14 @@ from ..gmx_utils import (
     get_exchange_router_contract, create_connection, contract_map,
     PRECISION, get_execution_price_and_price_impact, order_type as order_types,
     decrease_position_swap_type as decrease_position_swap_types,
-    convert_to_checksum_address
+    convert_to_checksum_address, check_web3_correct_version
 )
 from ..gas_utils import get_execution_fee
 from ..approve_token_for_spend import check_if_approved
+
+is_newer_version, version = check_web3_correct_version()
+if is_newer_version:
+    logging.warning(f"Current version of py web3 ({version}), may result in errors.")
 
 
 class Order:
@@ -108,8 +112,14 @@ class Order:
             signed_txn = self._connection.eth.account.sign_transaction(
                 raw_txn, self.config.private_key
             )
+
+            try:
+                txn = signed_txn.rawTransaction
+            except TypeError:
+                txn = signed_txn.raw_transaction
+
             tx_hash = self._connection.eth.send_raw_transaction(
-                signed_txn.rawTransaction
+                txn
             )
             self.log.info("Txn submitted!")
             self.log.info(
@@ -414,32 +424,57 @@ class Order:
         """
         Create Order
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name="createOrder",
-            args=[arguments],
-        )
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name="createOrder",
+                args=[arguments],
+            )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name="createOrder",
+                args=[arguments],
+            )
 
     def _send_tokens(self, arguments, amount):
         """
         Send tokens
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name="sendTokens",
-            args=(
-                self.collateral_address,
-                '0x31eF83a530Fde1B38EE9A18093A333D8Bbbc40D5',
-                amount
-            ),
-        )
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name="sendTokens",
+                args=(
+                    self.collateral_address,
+                    '0x31eF83a530Fde1B38EE9A18093A333D8Bbbc40D5',
+                    amount
+                ),
+            )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name="sendTokens",
+                args=(
+                    self.collateral_address,
+                    '0x31eF83a530Fde1B38EE9A18093A333D8Bbbc40D5',
+                    amount
+                ),
+            )
 
     def _send_wnt(self, amount):
         """
         Send WNT
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name='sendWnt',
-            args=(
-                "0x31eF83a530Fde1B38EE9A18093A333D8Bbbc40D5",
-                amount
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name='sendWnt',
+                args=(
+                    "0x31eF83a530Fde1B38EE9A18093A333D8Bbbc40D5",
+                    amount
+                )
             )
-        )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name='sendWnt',
+                args=(
+                    "0x31eF83a530Fde1B38EE9A18093A333D8Bbbc40D5",
+                    amount
+                )
+            )
