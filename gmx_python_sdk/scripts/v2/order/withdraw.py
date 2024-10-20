@@ -10,11 +10,15 @@ from ..get.get_oracle_prices import OraclePrices
 from ..gmx_utils import convert_to_checksum_address, \
     get_exchange_router_contract, create_connection, \
     determine_swap_route, contract_map, \
-    get_estimated_withdrawal_amount_out
+    get_estimated_withdrawal_amount_out, check_web3_correct_version
 
 from ..approve_token_for_spend import check_if_approved
 
 from ..gas_utils import get_execution_fee
+
+is_newer_version, version = check_web3_correct_version()
+if is_newer_version:
+    logging.warning(f"Current version of py web3 ({version}), may result in errors.")
 
 
 class Withdraw:
@@ -113,8 +117,14 @@ class Withdraw:
             signed_txn = self._connection.eth.account.sign_transaction(
                 raw_txn, self.config.private_key
             )
+
+            try:
+                txn = signed_txn.rawTransaction
+            except TypeError:
+                txn = signed_txn.raw_transaction
+
             tx_hash = self._connection.eth.send_raw_transaction(
-                signed_txn.rawTransaction
+                txn
             )
             self.log.info("Txn submitted!")
             self.log.info(
@@ -242,35 +252,60 @@ class Withdraw:
         """
         Create Order
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name="createWithdrawal",
-            args=[arguments],
-        )
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name="createWithdrawal",
+                args=[arguments],
+            )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name="createWithdrawal",
+                args=[arguments],
+            )
 
     def _send_wnt(self, amount):
         """
         Send WNT
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name='sendWnt',
-            args=(
-                "0x0628D46b5D145f183AdB6Ef1f2c97eD1C4701C55",
-                amount
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name='sendWnt',
+                args=(
+                    "0x0628D46b5D145f183AdB6Ef1f2c97eD1C4701C55",
+                    amount
+                )
             )
-        )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name='sendWnt',
+                args=(
+                    "0x0628D46b5D145f183AdB6Ef1f2c97eD1C4701C55",
+                    amount
+                )
+            )
 
     def _send_tokens(self, token_address, amount):
         """
         Send tokens
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name="sendTokens",
-            args=(
-                token_address,
-                '0x0628D46b5D145f183AdB6Ef1f2c97eD1C4701C55',
-                amount
-            ),
-        )
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name="sendTokens",
+                args=(
+                    token_address,
+                    '0x0628D46b5D145f183AdB6Ef1f2c97eD1C4701C55',
+                    amount
+                ),
+            )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name="sendTokens",
+                args=(
+                    token_address,
+                    '0x0628D46b5D145f183AdB6Ef1f2c97eD1C4701C55',
+                    amount
+                ),
+            )
 
     def _estimate_withdrawal(self):
         """
