@@ -19,7 +19,6 @@ base_dir = os.path.abspath(
     os.path.join(current_script_path, '..', '..', '..', '..')
 )
 package_dir = base_dir + '/gmx_python_sdk/'
-print('base_dir', base_dir)
 
 logging.basicConfig(
     format='{asctime} {levelname}: {message}',
