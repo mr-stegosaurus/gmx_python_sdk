@@ -12,13 +12,13 @@ from datetime import datetime
 
 from concurrent.futures import ThreadPoolExecutor
 
+
 # Get the absolute path of the current script
 current_script_path = os.path.abspath(__file__)
 base_dir = os.path.abspath(
     os.path.join(current_script_path, '..', '..', '..', '..')
 )
 package_dir = base_dir + '/gmx_python_sdk/'
-print('base_dir', base_dir)
 
 logging.basicConfig(
     format='{asctime} {levelname}: {message}',
@@ -810,6 +810,27 @@ def determine_swap_route(markets: dict, in_token: str, out_token: str):
         return [gmx_market_address, second_gmx_market_address], is_requires_multi_swap
 
     return [gmx_market_address], is_requires_multi_swap
+
+
+def check_web3_correct_version():
+    """
+    Check the version of web3 package install
+
+    Returns
+    -------
+    None.
+
+    """
+    import web3
+    from packaging import version
+
+    # The version of the module you want to check
+    current_version = version.parse(web3.__version__)
+
+    # The version to compare with
+    required_version = version.parse("6.10.0")
+
+    return current_version > required_version, current_version
 
 
 if __name__ == "__main__":

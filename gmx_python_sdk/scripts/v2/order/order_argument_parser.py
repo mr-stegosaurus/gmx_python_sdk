@@ -287,14 +287,13 @@ class OrderArgumentParser:
         if self.parameters_dict['market_key'] == "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f":
             market_key = "0x47c031236e19d024b42f8AE6780E44A573170703"
 
-        market = self.markets
+        market = self.markets[market_key]
 
         # if collateral address doesnt match long or short token address, no bueno
         if collateral_address == market['long_token_address'] or \
                 collateral_address == market['short_token_address']:
             return True
         else:
-            return True
             raise Exception("Not a valid collateral for selected market!")
 
     @staticmethod

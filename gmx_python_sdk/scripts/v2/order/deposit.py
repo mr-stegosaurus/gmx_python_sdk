@@ -9,11 +9,16 @@ from ..get.get_oracle_prices import OraclePrices
 
 from ..gmx_utils import convert_to_checksum_address, \
     get_exchange_router_contract, create_connection, \
-    determine_swap_route, contract_map, get_estimated_deposit_amount_out
+    determine_swap_route, contract_map, get_estimated_deposit_amount_out, \
+    check_web3_correct_version
 
 from ..approve_token_for_spend import check_if_approved
 
 from ..gas_utils import get_execution_fee
+
+is_newer_version, version = check_web3_correct_version()
+if is_newer_version:
+    logging.warning(f"Current version of py web3 ({version}), may result in errors.")
 
 
 class Deposit:
@@ -27,7 +32,8 @@ class Deposit:
         long_token_amount: int,
         short_token_amount: int,
         max_fee_per_gas: int = None,
-        debug_mode: bool = False
+        debug_mode: bool = False,
+        execution_buffer: float = 1.1
     ) -> None:
         self.config = config
         self.market_key = market_key
@@ -39,6 +45,11 @@ class Deposit:
         self.short_token_swap_path = []
         self.max_fee_per_gas = max_fee_per_gas
         self.debug_mode = debug_mode
+        self.execution_buffer = execution_buffer
+
+        if self.debug_mode:
+            logging.info("Execution buffer set to: {:.2f}%".format(
+                (self.execution_buffer - 1) * 100))
 
         if self.max_fee_per_gas is None:
             block = create_connection(
@@ -118,8 +129,14 @@ class Deposit:
             signed_txn = self._connection.eth.account.sign_transaction(
                 raw_txn, self.config.private_key
             )
+
+            try:
+                txn = signed_txn.rawTransaction
+            except TypeError:
+                txn = signed_txn.raw_transaction
+
             tx_hash = self._connection.eth.send_raw_transaction(
-                signed_txn.rawTransaction
+                txn
             )
             self.log.info("Txn submitted!")
             self.log.info(
@@ -163,7 +180,7 @@ class Deposit:
                 self._gas_limits,
                 self._gas_limits_order_type,
                 self._connection.eth.gas_price
-            ) * 1.1
+            ) * self.execution_buffer
         )
 
         callback_gas_limit = 0
@@ -285,35 +302,60 @@ class Deposit:
         """
         Create Order
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name="createDeposit",
-            args=[arguments],
-        )
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name="createDeposit",
+                args=[arguments],
+            )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name="createDeposit",
+                args=[arguments],
+            )
 
     def _send_tokens(self, token_address, amount):
         """
         Send tokens
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name="sendTokens",
-            args=(
-                token_address,
-                '0xF89e77e8Dc11691C9e8757e84aaFbCD8A67d7A55',
-                amount
-            ),
-        )
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name="sendTokens",
+                args=(
+                    token_address,
+                    '0xF89e77e8Dc11691C9e8757e84aaFbCD8A67d7A55',
+                    amount
+                ),
+            )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name="sendTokens",
+                args=(
+                    token_address,
+                    '0xF89e77e8Dc11691C9e8757e84aaFbCD8A67d7A55',
+                    amount
+                ),
+            )
 
     def _send_wnt(self, amount):
         """
         Send WNT
         """
-        return self._exchange_router_contract_obj.encodeABI(
-            fn_name='sendWnt',
-            args=(
-                "0xF89e77e8Dc11691C9e8757e84aaFbCD8A67d7A55",
-                amount
+        try:
+            return self._exchange_router_contract_obj.encodeABI(
+                fn_name='sendWnt',
+                args=(
+                    "0xF89e77e8Dc11691C9e8757e84aaFbCD8A67d7A55",
+                    amount
+                )
             )
-        )
+        except TypeError:
+            return self._exchange_router_contract_obj.encode_abi(
+                fn_name='sendWnt',
+                args=(
+                    "0xF89e77e8Dc11691C9e8757e84aaFbCD8A67d7A55",
+                    amount
+                )
+            )
 
     def _estimate_deposit(self):
         """

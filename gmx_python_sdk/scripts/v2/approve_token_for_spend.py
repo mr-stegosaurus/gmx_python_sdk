@@ -104,7 +104,13 @@ def check_if_approved(
 
         signed_txn = connection.eth.account.sign_transaction(raw_txn,
                                                              config.private_key)
-        tx_hash = connection.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+        try:
+            txn = signed_txn.rawTransaction
+        except TypeError:
+            txn = signed_txn.raw_transaction
+
+        tx_hash = connection.eth.send_raw_transaction(txn)
 
         print("Txn submitted!")
         print("Check status: https://arbiscan.io/tx/{}".format(tx_hash.hex()))
