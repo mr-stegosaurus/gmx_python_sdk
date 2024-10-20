@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gmx_python_sdk"
-version = "0.0.7"
+version = "0.0.8"
 description = "A python based SDK developed for interacting with GMX v2"
 
 authors = [
@@ -29,6 +29,7 @@ web3 = ">= 6.10.0"
 pyyaml = ">= 6.0.1"
 pandas = ">= 1.4.2"
 numerize = ">= 0.12"
+Packaging = ">= 24.1"
 
 [build-system]
 requires = ["poetry-core"]
