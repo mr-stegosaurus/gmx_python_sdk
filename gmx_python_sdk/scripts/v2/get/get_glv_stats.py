@@ -5,6 +5,8 @@ from ..gmx_utils import (
     save_csv_to_datastore, get_token_balance_contract
 )
 from .get_oracle_prices import OraclePrices
+from .get_gm_prices import GMPrices
+from ..keys import MAX_PNL_FACTOR_FOR_TRADERS
 
 
 class GlvStats(GetData):
@@ -13,6 +15,7 @@ class GlvStats(GetData):
         self.config = config
         self.to_json = None
         self.to_csv = None
+        self.GMPrices_obj = GMPrices(config)
 
     def get_glv_stats(self, to_json: bool = False, to_csv: bool = False):
         """
@@ -90,11 +93,24 @@ class GlvStats(GetData):
                     glv_market_address,
                     market_address
                 )
+                gm_price = self.GMPrices_obj._make_market_token_price_query(
+                    [
+                        market_address,
+                        index_token_address,
+                        self._long_token_address,
+                        self._short_token_address
+                    ],
+                    oracle_prices[0],
+                    long_token_price,
+                    short_token_price,
+                    MAX_PNL_FACTOR_FOR_TRADERS
+                ).call()[0] / 10**30
 
                 market_symbol = self.markets.get_market_symbol(market_address)
                 glv_markets_metadata[market_address] = {"address": market_address,
                                                         'market symbol': market_symbol,
-                                                        "balance": market_token_balance}
+                                                        "balance": market_token_balance,
+                                                        "gm price": gm_price}
 
             glv_info_dict[glv_market_address]['markets_metadata'] = glv_markets_metadata
 
