@@ -54,7 +54,7 @@ contract_map = {
         },
         "exchangerouter":
         {
-            "contract_address": "0x69C527fC77291722b52649E45c838e41be8Bf5d5",
+            "contract_address": "0x900173A66dbD345006C51fA35fA3aB760FcD843b",
             "abi_path": "contracts/arbitrum/exchangerouter.json"
         },
         "depositvault":
@@ -102,7 +102,7 @@ contract_map = {
         },
         "exchangerouter":
         {
-            "contract_address": "0x3BE24AED1a4CcaDebF2956e02C27a00726D4327d",
+            "contract_address": "0x2b76df209E1343da5698AF0f8757f6170162e78b",
             "abi_path": "contracts/avalanche/exchangerouter.json"
         },
         "depositvault":
