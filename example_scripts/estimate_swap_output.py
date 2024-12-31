@@ -72,7 +72,7 @@ class EstimateSwapOutput:
                 out_token_symbol
             )
         if token_amount_expanded is None:
-            token_amount_expanded = (
+            token_amount_expanded = int(
                 token_amount * 10 ** self.tokens[in_token_address]['decimals']
             )
 
